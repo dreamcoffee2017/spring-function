@@ -7,10 +7,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.function.Function;
+import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+@EnableDynamoDBRepositories
 public class Application {
 
   private final CustomerService customerService;
@@ -30,6 +32,7 @@ public class Application {
       try {
         JsonNode jsonNode = new ObjectMapper().readTree(value);
         String code = jsonNode.get("code").asText();
+        customerService.saveCustomer(null);
         List<CustomerDto> customers = customerService.listCustomer(code);
         return customers.toString();
       } catch (JsonProcessingException e) {
