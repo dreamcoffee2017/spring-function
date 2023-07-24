@@ -7,4 +7,5 @@ import org.springframework.data.repository.CrudRepository;
 @EnableScan
 public interface CustomerRepository extends CrudRepository<Customer, String> {
 
+  Iterable<Customer> findByName(String name);
 }

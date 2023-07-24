@@ -3,6 +3,8 @@ package com.example.awslambda.customer.service;
 import com.example.awslambda.customer.dto.CustomerDto;
 import com.example.awslambda.customer.input.CustomerInput;
 import java.util.List;
+import javax.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * <p>
@@ -12,20 +14,21 @@ import java.util.List;
  * @author Administrator
  * @since 2019-07-06
  */
+@Validated
 public interface CustomerService {
 
   /**
    * listCustomer
    *
-   * @param name customer's name
+   * @param input param
    * @return dto
    */
-  List<CustomerDto> listCustomer(String name);
+  List<CustomerDto> listCustomer(@Valid CustomerInput input);
 
   /**
    * saveCustomer
    *
    * @param input param
    */
-  void saveCustomer(CustomerInput input);
+  void saveCustomer(@Valid CustomerInput input);
 }

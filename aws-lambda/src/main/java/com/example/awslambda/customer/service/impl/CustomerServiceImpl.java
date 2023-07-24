@@ -8,6 +8,7 @@ import com.example.awslambda.customer.service.CustomerService;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,11 +29,11 @@ public class CustomerServiceImpl implements CustomerService {
   }
 
   @Override
-  public List<CustomerDto> listCustomer(String name) {
-    return StreamSupport.stream(customerRepository.findAll().spliterator(), false)
+  public List<CustomerDto> listCustomer(CustomerInput input) {
+    return StreamSupport.stream(customerRepository.findByName(input.getName()).spliterator(), false)
         .map(customer -> {
           CustomerDto customerDto = new CustomerDto();
-          customerDto.setName("hello: " + name);
+          BeanUtils.copyProperties(customer, customerDto);
           return customerDto;
         }).collect(Collectors.toList());
   }
@@ -40,7 +41,7 @@ public class CustomerServiceImpl implements CustomerService {
   @Override
   public void saveCustomer(CustomerInput input) {
     Customer customer = new Customer();
-    customer.setName("frank");
+    BeanUtils.copyProperties(input, customer);
     customerRepository.save(customer);
   }
 }

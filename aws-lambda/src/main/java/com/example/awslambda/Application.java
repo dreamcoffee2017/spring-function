@@ -1,11 +1,10 @@
 package com.example.awslambda;
 
-import com.example.awslambda.customer.dto.CustomerDto;
+import com.example.awslambda.customer.input.CustomerInput;
 import com.example.awslambda.customer.service.CustomerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import java.util.function.Function;
 import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,18 +25,33 @@ public class Application {
   }
 
   @Bean
-  public Function<String, String> lambda() {
-    System.out.println("call lambda");
-    return (value) -> {
+  public Function<String, String> listLambda() {
+    return value -> {
       try {
-        JsonNode jsonNode = new ObjectMapper().readTree(value);
-        String code = jsonNode.get("code").asText();
-        customerService.saveCustomer(null);
-        List<CustomerDto> customers = customerService.listCustomer(code);
-        return customers.toString();
-      } catch (JsonProcessingException e) {
+        CustomerInput input = buildInput(value);
+        return customerService.listCustomer(input).toString();
+      } catch (Exception e) {
         throw new RuntimeException(e);
       }
     };
+  }
+
+  @Bean
+  public Function<String, String> saveLambda() {
+    return value -> {
+      try {
+        CustomerInput input = buildInput(value);
+        customerService.saveCustomer(input);
+        return "ok";
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    };
+  }
+
+  private CustomerInput buildInput(String value) throws JsonProcessingException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode jsonNode = objectMapper.readTree(value);
+    return objectMapper.convertValue(jsonNode.get("input"), CustomerInput.class);
   }
 }
